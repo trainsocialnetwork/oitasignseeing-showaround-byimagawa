@@ -11,7 +11,7 @@
     --card: #ffffff;
     --text: #33302b;
     --sub: #8a8478;
-    --accent: #2a6f77;      /* 温泉の湯けむりっぽい深い青緑 */
+    --accent: #2a6f77;      /* 温泉の湯けむりをイメージした深い青緑 */
     --accent-light: #e3eef0;
     --yuzu: #e0912f;        /* かぼす・ゆず色 */
     --border: #e5ddd0;
@@ -32,22 +32,32 @@
     display: flex;
     flex-direction: column;
   }
+  svg.ic { width: 1.15em; height: 1.15em; vertical-align: -0.2em; }
+
   header {
     text-align: center;
-    padding: 8px 0 18px;
+    padding: 6px 0 18px;
   }
-  header .logo { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.05em; }
+  header .logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  header .logo svg { width: 1.5em; height: 1.5em; color: var(--accent); }
   header .logo span { color: var(--accent); }
 
   /* 進み具合バー */
   .progress-wrap { margin-bottom: 18px; display: none; }
   .progress-label { font-size: 0.75rem; color: var(--sub); text-align: right; margin-bottom: 5px; }
-  .progress-bar { height: 6px; background: #e9e2d4; border-radius: 3px; overflow: hidden; }
-  .progress-fill { height: 100%; width: 0; background: var(--accent); border-radius: 3px; transition: width 0.3s ease; }
+  .progress-bar { height: 8px; background: #e9e2d4; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0; background: var(--accent); border-radius: 4px; transition: width 0.3s ease; }
 
   .card {
     background: var(--card);
-    border-radius: 18px;
+    border-radius: 22px;
     padding: 24px 20px;
     box-shadow: 0 2px 14px rgba(80, 70, 50, 0.08);
     animation: fadein 0.25s ease;
@@ -63,26 +73,42 @@
   .options { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
   .opt-btn {
     width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 11px;
     text-align: left;
     font-size: 0.95rem;
     font-family: inherit;
-    padding: 14px 16px;
+    padding: 13px 15px;
     background: #fdfcf9;
     border: 1.5px solid var(--border);
-    border-radius: 12px;
+    border-radius: 14px;
     color: var(--text);
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
     line-height: 1.4;
   }
   .opt-btn:active { background: var(--accent-light); }
+  /* 左の丸チェック */
+  .opt-btn::before {
+    content: "";
+    flex: 0 0 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    background: #fff;
+    transition: background 0.15s, border-color 0.15s;
+  }
   .opt-btn.selected {
     background: var(--accent-light);
     border-color: var(--accent);
     color: var(--accent);
     font-weight: 700;
   }
-  .opt-btn.selected::before { content: "✓ "; }
+  .opt-btn.selected::before {
+    border-color: var(--accent);
+    background: var(--accent) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>') no-repeat center / 70%;
+  }
 
   textarea {
     width: 100%;
@@ -91,7 +117,7 @@
     font-size: 0.95rem;
     padding: 12px 14px;
     border: 1.5px solid var(--border);
-    border-radius: 12px;
+    border-radius: 14px;
     background: #fdfcf9;
     resize: vertical;
     margin-top: 14px;
@@ -102,11 +128,15 @@
   .nav { display: flex; gap: 10px; margin-top: 20px; }
   .btn {
     flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     font-family: inherit;
     font-size: 1rem;
     font-weight: 700;
     padding: 14px;
-    border-radius: 12px;
+    border-radius: 14px;
     border: none;
     cursor: pointer;
     transition: opacity 0.15s;
@@ -123,15 +153,25 @@
   }
 
   /* スタート画面 */
-  .start-hero { text-align: center; padding: 8px 0 4px; }
-  .start-hero .emoji { font-size: 3rem; }
-  .start-hero h1 { font-size: 1.25rem; margin: 12px 0 10px; line-height: 1.5; }
-  .start-hero p { font-size: 0.9rem; color: var(--sub); line-height: 1.8; }
-  .start-hero .time { display: inline-block; margin-top: 12px; font-size: 0.8rem; color: var(--accent); background: var(--accent-light); padding: 4px 14px; border-radius: 999px; }
+  .start-card { padding: 0; overflow: hidden; }
+  .hero-img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; }
+  .start-body { padding: 22px 20px 26px; text-align: center; }
+  .start-body h1 { font-size: 1.25rem; line-height: 1.5; margin-bottom: 10px; }
+  .start-body p { font-size: 0.9rem; color: var(--sub); line-height: 1.9; }
+  .start-body .time {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 5px 16px;
+    border-radius: 999px;
+  }
 
   /* 結果画面 */
   .done-hero { text-align: center; margin-bottom: 16px; }
-  .done-hero .emoji { font-size: 2.6rem; }
+  .done-hero svg { width: 52px; height: 52px; color: var(--accent); }
   .done-hero h2 { font-size: 1.2rem; margin-top: 8px; }
   .copy-status {
     text-align: center;
@@ -139,7 +179,7 @@
     font-weight: 700;
     line-height: 1.7;
     padding: 12px 14px;
-    border-radius: 12px;
+    border-radius: 14px;
     margin-bottom: 16px;
   }
   .copy-status.ok { background: var(--accent-light); color: var(--accent); }
@@ -151,17 +191,19 @@
     line-height: 1.6;
     padding: 14px;
     border: 1.5px solid var(--border);
-    border-radius: 12px;
+    border-radius: 14px;
     background: #fdfcf9;
     white-space: pre-wrap;
     word-break: break-all;
-    max-height: 260px;
+    max-height: 240px;
     overflow-y: auto;
     margin-bottom: 16px;
   }
+  .done-img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 14px; margin-top: 20px; display: block; }
+  .done-note { text-align: center; font-size: 0.85rem; color: var(--sub); margin-top: 12px; line-height: 1.7; }
   .restart {
     display: block;
-    margin: 18px auto 0;
+    margin: 16px auto 0;
     background: none;
     border: none;
     color: var(--sub);
@@ -175,7 +217,19 @@
 </head>
 <body>
 <div class="app">
-  <header><div class="logo">♨️ 大分<span>たび</span>ヒアリング</div></header>
+  <header>
+    <div class="logo">
+      <!-- 温泉マーク -->
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 5c-2.5 3 2.5 5.5 0 9"/>
+        <path d="M24 3c-2.5 3 2.5 5.5 0 9"/>
+        <path d="M33 5c-2.5 3 2.5 5.5 0 9"/>
+        <path d="M6 26c0 9.5 8 15 18 15s18-5.5 18-15"/>
+        <path d="M3 26h42"/>
+      </svg>
+      大分<span>たび</span>ヒアリング
+    </div>
+  </header>
 
   <div class="progress-wrap" id="progressWrap">
     <div class="progress-label" id="progressLabel"></div>
@@ -188,15 +242,31 @@
 </div>
 
 <script>
+// ---- アイコン（インラインSVG） ----
+const ICONS = {
+  // 紙飛行機（送る）
+  send: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>',
+  // コピー（四角2枚）
+  copy: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  // 吹き出し（トーク）
+  talk: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.5-.76L3 21l1.76-6A8.5 8.5 0 1 1 21 11.5z"/></svg>',
+  // 丸チェック（完了）
+  check: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="24" cy="24" r="20"/><path d="M15 24.5l6.5 6.5L33 18"/></svg>',
+};
+
 // ---- 質問リスト ----
 // type: single = 1つ選ぶ / multi = 複数選べる / text = 自由入力
 const QUESTIONS = [
+  { q: "大分に来るのは初めて？", type: "single",
+    options: ["初めて", "2回目くらい", "何度も来ている・けっこう詳しい"] },
   { q: "誰と大分に行く？", type: "single",
     options: ["ひとり旅", "夫婦・カップル", "友達と", "家族（子ども連れ）", "家族（大人だけ）"] },
   { q: "何泊する予定？", type: "single",
     options: ["日帰り", "1泊2日", "2泊3日", "3泊以上", "まだ決めてない"] },
   { q: "いつ頃来る予定？", type: "single",
     options: ["春（3〜5月）", "夏（6〜8月）", "秋（9〜11月）", "冬（12〜2月）", "まだ決めてない"] },
+  { q: "大分までの行き方は？", note: "到着する場所で回りやすいルートが変わります", type: "single",
+    options: ["飛行機（大分空港）", "新幹線・特急ソニック（小倉経由）", "車で行く", "フェリー（さんふらわあ など）", "まだ決めてない"] },
   { q: "現地での移動手段は？", type: "single",
     options: ["車・レンタカー", "電車・バスなどの公共交通", "まだ決めてない・相談したい"] },
   { q: "旅のペースはどうしたい？", type: "single",
@@ -206,9 +276,9 @@ const QUESTIONS = [
   { q: "気になっている場所はある？", note: "複数選択OK", type: "multi",
     options: ["別府（地獄めぐり・鉄輪）", "湯布院", "宇佐神宮", "国東半島", "耶馬渓", "くじゅう・長者原", "臼杵・豊後大野", "特にない・おまかせ"] },
   { q: "温泉はどう楽しみたい？", note: "複数選択OK", type: "multi",
-    options: ["露天風呂でのんびり", "砂湯・蒸し湯など変わり種", "貸切風呂・家族風呂", "いろんな温泉を湯めぐり", "温泉はそこまでこだわらない"] },
+    options: ["露天風呂でのんびり", "砂湯・蒸し湯・泥湯など変わり種", "貸切風呂・家族風呂", "いろんな温泉を湯めぐり", "サウナも好き", "温泉はそこまでこだわらない"] },
   { q: "好きなもの・食べたいものは？", note: "複数選択OK", type: "multi",
-    options: ["海鮮（関あじ・関さば・りゅうきゅう）", "とり天・唐揚げ", "地獄蒸し", "だんご汁・やせうまなどの郷土料理", "肉・焼肉", "スイーツ・カフェ", "お酒・地酒"] },
+    options: ["海鮮（関あじ・関さば・りゅうきゅう）", "とり天・唐揚げ", "地獄蒸し", "だんご汁・やせうまなどの郷土料理", "別府冷麺・日田やきそばなどご当地グルメ", "肉・焼肉", "スイーツ・カフェ", "お酒・地酒"] },
   { q: "苦手な食べ物やアレルギーはある？", note: "なければ空欄のまま「次へ」でOK", type: "text",
     placeholder: "例：生ものが苦手、えびアレルギー など" },
   { q: "宿に求めるものは？", note: "複数選択OK", type: "multi",
@@ -216,7 +286,7 @@ const QUESTIONS = [
   { q: "宿の予算は？（1人1泊あたり）", type: "single",
     options: ["〜1万円", "1〜2万円", "2〜3万円", "3万円以上（贅沢に）", "まだ決めてない"] },
   { q: "ほかにリクエストや伝えたいことがあれば！", note: "なければ空欄のまま「回答を送る」でOK", type: "text",
-    placeholder: "例：運転できる人がいない、朝はゆっくりしたい など" },
+    placeholder: "例：歩くのが苦手な人がいる、運転できる人がいない、朝はゆっくりしたい など" },
 ];
 
 const screen = document.getElementById("screen");
@@ -231,13 +301,15 @@ let answers = [];   // 質問ごとの回答（multiは配列、それ以外は�
 function renderStart() {
   progressWrap.style.display = "none";
   screen.innerHTML = `
-    <div class="card start-hero">
-      <div class="emoji">🏞️</div>
-      <h1>大分に遊びに来るあなたへ！</h1>
-      <p>ぴったりの宿や観光地をおすすめするために、<br>いくつか質問に答えてね。<br>最後に回答をコピーして、<br>LINEで送ってくれたら準備完了！</p>
-      <div class="time">全${QUESTIONS.length}問・2分くらい</div>
-      <div class="nav">
-        <button class="btn btn-primary" id="startBtn">はじめる</button>
+    <div class="card start-card">
+      <img class="hero-img" src="img/beppu.jpeg" alt="湯けむりが立ちのぼる別府温泉の街並み">
+      <div class="start-body">
+        <h1>大分に遊びに来るあなたへ</h1>
+        <p>ぴったりの宿や観光地をおすすめするために、<br>いくつか質問に答えてね。<br>最後に回答をコピーして、<br>LINEで送ってくれたら準備完了！</p>
+        <div class="time">全${QUESTIONS.length}問・2〜3分</div>
+        <div class="nav">
+          <button class="btn btn-primary" id="startBtn">はじめる</button>
+        </div>
       </div>
     </div>`;
   document.getElementById("startBtn").onclick = () => { current = 0; renderQuestion(); };
@@ -251,12 +323,12 @@ function renderQuestion() {
   progressFill.style.width = `${((current + 1) / QUESTIONS.length) * 100}%`;
 
   const isLast = current === QUESTIONS.length - 1;
-  const nextLabel = isLast ? "回答を送る" : "次へ";
+  const nextLabel = isLast ? `${ICONS.send} 回答を送る` : "次へ";
   let body = "";
 
   if (item.type === "single" || item.type === "multi") {
     body = `<div class="options">` +
-      item.options.map((opt, i) => `<button class="opt-btn" data-i="${i}">${opt}</button>`).join("") +
+      item.options.map((opt, i) => `<button class="opt-btn" data-i="${i}"><span>${opt}</span></button>`).join("") +
       `</div>`;
   } else {
     body = `<textarea id="freeText" placeholder="${item.placeholder || ""}"></textarea>`;
@@ -284,11 +356,11 @@ function renderQuestion() {
   if (item.type === "single") {
     const btns = [...screen.querySelectorAll(".opt-btn")];
     btns.forEach((btn) => {
-      if (saved === btn.textContent) btn.classList.add("selected");
+      if (saved === item.options[btn.dataset.i]) btn.classList.add("selected");
       btn.onclick = () => {
         btns.forEach((b) => b.classList.remove("selected"));
         btn.classList.add("selected");
-        answers[current] = btn.textContent;
+        answers[current] = item.options[btn.dataset.i];
         // 選んだ感を少し見せてから次へ
         setTimeout(() => goNext(), 200);
       };
@@ -332,7 +404,7 @@ function goNext() {
 
 // ---- 回答テキストを作る ----
 function buildResultText() {
-  const lines = ["♨️ 大分たびヒアリング 回答", "――――――――――"];
+  const lines = ["【大分たびヒアリング 回答】", "――――――――――"];
   QUESTIONS.forEach((item, i) => {
     let ans = answers[i];
     if (Array.isArray(ans)) {
@@ -382,18 +454,20 @@ function renderDone(text, copied) {
   screen.innerHTML = `
     <div class="card">
       <div class="done-hero">
-        <div class="emoji">🎉</div>
+        ${ICONS.check}
         <h2>回答ありがとう！</h2>
       </div>
       <div class="copy-status ${copied ? "ok" : "ng"}" id="copyStatus">
         ${copied
-          ? "回答をコピーしました！<br>このままLINEに貼って送ってね 📲"
-          : "下のボタンで回答をコピーして、<br>LINEに貼って送ってね 📲"}
+          ? `回答をコピーしました！<br>このままLINEに貼って送ってね ${ICONS.talk}`
+          : `下のボタンで回答をコピーして、<br>LINEに貼って送ってね ${ICONS.talk}`}
       </div>
       <div class="result-text">${text.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</div>
       <div class="nav">
-        <button class="btn btn-primary" id="copyBtn">回答をコピーする</button>
+        <button class="btn btn-primary" id="copyBtn">${ICONS.copy} 回答をコピーする</button>
       </div>
+      <img class="done-img" src="img/yufuin.jpeg" alt="由布岳を望む湯布院の街並み">
+      <p class="done-note">回答をもとに、ぴったりのプランを考えて待ってるね。<br>それでは大分で会いましょう！</p>
       <button class="restart" id="restartBtn">最初からやり直す</button>
     </div>`;
 
@@ -402,7 +476,7 @@ function renderDone(text, copied) {
       const st = document.getElementById("copyStatus");
       st.className = "copy-status " + (ok ? "ok" : "ng");
       st.innerHTML = ok
-        ? "コピーしました！<br>このままLINEに貼って送ってね 📲"
+        ? `コピーしました！<br>このままLINEに貼って送ってね ${ICONS.talk}`
         : "コピーできなかったみたい…<br>上の回答を長押しでコピーしてね";
     });
   };
