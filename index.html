@@ -110,6 +110,16 @@
     background: var(--accent) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>') no-repeat center / 70%;
   }
 
+  .opt-label { flex: 1; }
+  .opt-desc {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--sub);
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+
   textarea {
     width: 100%;
     min-height: 100px;
@@ -273,12 +283,34 @@ const QUESTIONS = [
     options: ["とにかくゆっくりしたい", "のんびりメイン＋少し観光", "バランスよく", "アクティブにたくさん回りたい"] },
   { q: "旅でやりたいことは？", note: "当てはまるもの、ぜんぶ選んでOK", type: "multi",
     options: ["温泉にゆっくり浸かる", "自然・絶景を味わう", "有名な観光地をおさえる", "地元の人が行くような穴場", "美味しいものを食べる", "体験もの（地獄蒸し・砂湯など）", "神社・お寺・歴史", "街歩き・カフェ巡り"] },
-  { q: "気になっている場所はある？", note: "複数選択OK", type: "multi",
-    options: ["別府（地獄めぐり・鉄輪）", "湯布院", "宇佐神宮", "国東半島", "耶馬渓", "くじゅう・長者原", "臼杵・豊後大野", "特にない・おまかせ"] },
+  { q: "気になっている場所はある？", note: "複数選択OK。知らない場所は説明を読んでピンときたらでOK", type: "multi",
+    options: ["別府", "湯布院", "宇佐神宮", "国東半島", "耶馬渓", "くじゅう・長者原", "臼杵・豊後大野", "特にない・おまかせ"],
+    descs: [
+      "地獄めぐり・砂湯・湯けむり、日本一の温泉のまち",
+      "由布岳のふもとのおしゃれな温泉街をさんぽ",
+      "全国の八幡さまの総本宮、大分いちのパワースポット",
+      "くにさきはんとう／お寺と仏像の里、のどかな絶景",
+      "やばけい／岩がそびえる渓谷、紅葉の名所",
+      "ちょうじゃばる／雄大な高原をドライブ・ハイキング",
+      "うすき・ぶんごおおの／国宝の石仏・城下町・大きな滝",
+      "よく分からないので、おすすめにお任せしたい",
+    ] },
   { q: "温泉はどう楽しみたい？", note: "複数選択OK", type: "multi",
     options: ["露天風呂でのんびり", "砂湯・蒸し湯・泥湯など変わり種", "貸切風呂・家族風呂", "いろんな温泉を湯めぐり", "サウナも好き", "温泉はそこまでこだわらない"] },
-  { q: "好きなもの・食べたいものは？", note: "複数選択OK", type: "multi",
-    options: ["海鮮（関あじ・関さば・りゅうきゅう）", "とり天・唐揚げ", "地獄蒸し", "だんご汁・やせうまなどの郷土料理", "別府冷麺・日田やきそばなどご当地グルメ", "肉・焼肉", "スイーツ・カフェ", "お酒・地酒"] },
+  { q: "好きなもの・食べたいものは？", note: "複数選択OK。大分のご当地グルメから気になるものを選んでね", type: "multi",
+    options: ["関あじ・関さば・海鮮", "りゅうきゅう", "とり天", "からあげ", "地獄蒸し", "だんご汁・やせうま", "別府冷麺・日田やきそば", "豊後牛・焼肉", "スイーツ・カフェ", "お酒・地酒"],
+    descs: [
+      "速い潮で育った大分自慢のブランド魚。刺身・お寿司で",
+      "新鮮な魚を甘めのタレに漬けた郷土の味。ご飯にのせても最高",
+      "大分発祥、鶏肉の天ぷら。かぼすポン酢とからしで",
+      "中津・宇佐は「からあげの聖地」。専門店の揚げたてを",
+      "温泉の蒸気で海鮮や野菜を蒸して食べる、別府名物の体験グルメ",
+      "平たい小麦だんご入りの汁ものと、きなこの素朴なおやつ",
+      "ご当地の麺グルメ。別府冷麺は温泉街の焼肉店の定番",
+      "とろける大分のブランド牛",
+      "湯布院の温泉街スイーツやおしゃれカフェ",
+      "麦焼酎（いいちこ・二階堂は大分生まれ）や地酒、かぼすサワー",
+    ] },
   { q: "苦手な食べ物やアレルギーはある？", note: "なければ空欄のまま「次へ」でOK", type: "text",
     placeholder: "例：生ものが苦手、えびアレルギー など" },
   { q: "宿に求めるものは？", note: "複数選択OK", type: "multi",
@@ -328,7 +360,10 @@ function renderQuestion() {
 
   if (item.type === "single" || item.type === "multi") {
     body = `<div class="options">` +
-      item.options.map((opt, i) => `<button class="opt-btn" data-i="${i}"><span>${opt}</span></button>`).join("") +
+      item.options.map((opt, i) => {
+        const d = item.descs ? item.descs[i] : null;
+        return `<button class="opt-btn" data-i="${i}"><span class="opt-label">${opt}${d ? `<span class="opt-desc">${d}</span>` : ""}</span></button>`;
+      }).join("") +
       `</div>`;
   } else {
     body = `<textarea id="freeText" placeholder="${item.placeholder || ""}"></textarea>`;
