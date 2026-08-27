@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大分たびヒアリング</title>
+<meta name="description" content="大分旅行のおすすめを考えるためのヒアリングフォーム。質問に答えて、結果をLINEで送ってね。">
+<style>
+  :root {
+    --bg: #f7f2e9;
+    --card: #ffffff;
+    --text: #33302b;
+    --sub: #8a8478;
+    --accent: #2a6f77;      /* 温泉の湯けむりっぽい深い青緑 */
+    --accent-light: #e3eef0;
+    --yuzu: #e0912f;        /* かぼす・ゆず色 */
+    --border: #e5ddd0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+  }
+  .app {
+    width: 100%;
+    max-width: 480px;
+    padding: 20px 18px 40px;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    text-align: center;
+    padding: 8px 0 18px;
+  }
+  header .logo { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.05em; }
+  header .logo span { color: var(--accent); }
+
+  /* 進み具合バー */
+  .progress-wrap { margin-bottom: 18px; display: none; }
+  .progress-label { font-size: 0.75rem; color: var(--sub); text-align: right; margin-bottom: 5px; }
+  .progress-bar { height: 6px; background: #e9e2d4; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0; background: var(--accent); border-radius: 3px; transition: width 0.3s ease; }
+
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 24px 20px;
+    box-shadow: 0 2px 14px rgba(80, 70, 50, 0.08);
+    animation: fadein 0.25s ease;
+  }
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-title { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-bottom: 6px; }
+  .q-note { font-size: 0.8rem; color: var(--sub); margin-bottom: 14px; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .opt-btn {
+    width: 100%;
+    text-align: left;
+    font-size: 0.95rem;
+    font-family: inherit;
+    padding: 14px 16px;
+    background: #fdfcf9;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1.4;
+  }
+  .opt-btn:active { background: var(--accent-light); }
+  .opt-btn.selected {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .opt-btn.selected::before { content: "✓ "; }
+
+  textarea {
+    width: 100%;
+    min-height: 100px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: #fdfcf9;
+    resize: vertical;
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+
+  .nav { display: flex; gap: 10px; margin-top: 20px; }
+  .btn {
+    flex: 1;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:active:not(:disabled) { opacity: 0.85; }
+  .btn-back {
+    flex: 0 0 auto;
+    background: transparent;
+    color: var(--sub);
+    border: 1.5px solid var(--border);
+    padding: 14px 18px;
+  }
+
+  /* スタート画面 */
+  .start-hero { text-align: center; padding: 8px 0 4px; }
+  .start-hero .emoji { font-size: 3rem; }
+  .start-hero h1 { font-size: 1.25rem; margin: 12px 0 10px; line-height: 1.5; }
+  .start-hero p { font-size: 0.9rem; color: var(--sub); line-height: 1.8; }
+  .start-hero .time { display: inline-block; margin-top: 12px; font-size: 0.8rem; color: var(--accent); background: var(--accent-light); padding: 4px 14px; border-radius: 999px; }
+
+  /* 結果画面 */
+  .done-hero { text-align: center; margin-bottom: 16px; }
+  .done-hero .emoji { font-size: 2.6rem; }
+  .done-hero h2 { font-size: 1.2rem; margin-top: 8px; }
+  .copy-status {
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.7;
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .copy-status.ok { background: var(--accent-light); color: var(--accent); }
+  .copy-status.ng { background: #fbeede; color: var(--yuzu); }
+  .result-text {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    padding: 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: #fdfcf9;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 260px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+  }
+  .restart {
+    display: block;
+    margin: 18px auto 0;
+    background: none;
+    border: none;
+    color: var(--sub);
+    font-size: 0.82rem;
+    font-family: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  footer { text-align: center; margin-top: 24px; font-size: 0.72rem; color: var(--sub); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header><div class="logo">♨️ 大分<span>たび</span>ヒアリング</div></header>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label" id="progressLabel"></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div id="screen"></div>
+
+  <footer>おおいた案内 by いまがわ</footer>
+</div>
+
+<script>
+// ---- 質問リスト ----
+// type: single = 1つ選ぶ / multi = 複数選べる / text = 自由入力
+const QUESTIONS = [
+  { q: "誰と大分に行く？", type: "single",
+    options: ["ひとり旅", "夫婦・カップル", "友達と", "家族（子ども連れ）", "家族（大人だけ）"] },
+  { q: "何泊する予定？", type: "single",
+    options: ["日帰り", "1泊2日", "2泊3日", "3泊以上", "まだ決めてない"] },
+  { q: "いつ頃来る予定？", type: "single",
+    options: ["春（3〜5月）", "夏（6〜8月）", "秋（9〜11月）", "冬（12〜2月）", "まだ決めてない"] },
+  { q: "現地での移動手段は？", type: "single",
+    options: ["車・レンタカー", "電車・バスなどの公共交通", "まだ決めてない・相談したい"] },
+  { q: "旅のペースはどうしたい？", type: "single",
+    options: ["とにかくゆっくりしたい", "のんびりメイン＋少し観光", "バランスよく", "アクティブにたくさん回りたい"] },
+  { q: "旅でやりたいことは？", note: "当てはまるもの、ぜんぶ選んでOK", type: "multi",
+    options: ["温泉にゆっくり浸かる", "自然・絶景を味わう", "有名な観光地をおさえる", "地元の人が行くような穴場", "美味しいものを食べる", "体験もの（地獄蒸し・砂湯など）", "神社・お寺・歴史", "街歩き・カフェ巡り"] },
+  { q: "気になっている場所はある？", note: "複数選択OK", type: "multi",
+    options: ["別府（地獄めぐり・鉄輪）", "湯布院", "宇佐神宮", "国東半島", "耶馬渓", "くじゅう・長者原", "臼杵・豊後大野", "特にない・おまかせ"] },
+  { q: "温泉はどう楽しみたい？", note: "複数選択OK", type: "multi",
+    options: ["露天風呂でのんびり", "砂湯・蒸し湯など変わり種", "貸切風呂・家族風呂", "いろんな温泉を湯めぐり", "温泉はそこまでこだわらない"] },
+  { q: "好きなもの・食べたいものは？", note: "複数選択OK", type: "multi",
+    options: ["海鮮（関あじ・関さば・りゅうきゅう）", "とり天・唐揚げ", "地獄蒸し", "だんご汁・やせうまなどの郷土料理", "肉・焼肉", "スイーツ・カフェ", "お酒・地酒"] },
+  { q: "苦手な食べ物やアレルギーはある？", note: "なければ空欄のまま「次へ」でOK", type: "text",
+    placeholder: "例：生ものが苦手、えびアレルギー など" },
+  { q: "宿に求めるものは？", note: "複数選択OK", type: "multi",
+    options: ["一泊は贅沢したい", "コスパ重視", "温泉自慢の宿", "部屋風呂・貸切風呂つき", "ご飯がおいしい宿", "静かで落ち着ける", "眺めがいい", "素泊まりでOK"] },
+  { q: "宿の予算は？（1人1泊あたり）", type: "single",
+    options: ["〜1万円", "1〜2万円", "2〜3万円", "3万円以上（贅沢に）", "まだ決めてない"] },
+  { q: "ほかにリクエストや伝えたいことがあれば！", note: "なければ空欄のまま「回答を送る」でOK", type: "text",
+    placeholder: "例：運転できる人がいない、朝はゆっくりしたい など" },
+];
+
+const screen = document.getElementById("screen");
+const progressWrap = document.getElementById("progressWrap");
+const progressLabel = document.getElementById("progressLabel");
+const progressFill = document.getElementById("progressFill");
+
+let current = 0;
+let answers = [];   // 質問ごとの回答（multiは配列、それ以外は文字列）
+
+// ---- スタート画面 ----
+function renderStart() {
+  progressWrap.style.display = "none";
+  screen.innerHTML = `
+    <div class="card start-hero">
+      <div class="emoji">🏞️</div>
+      <h1>大分に遊びに来るあなたへ！</h1>
+      <p>ぴったりの宿や観光地をおすすめするために、<br>いくつか質問に答えてね。<br>最後に回答をコピーして、<br>LINEで送ってくれたら準備完了！</p>
+      <div class="time">全${QUESTIONS.length}問・2分くらい</div>
+      <div class="nav">
+        <button class="btn btn-primary" id="startBtn">はじめる</button>
+      </div>
+    </div>`;
+  document.getElementById("startBtn").onclick = () => { current = 0; renderQuestion(); };
+}
+
+// ---- 質問画面 ----
+function renderQuestion() {
+  const item = QUESTIONS[current];
+  progressWrap.style.display = "block";
+  progressLabel.textContent = `${current + 1} / ${QUESTIONS.length}`;
+  progressFill.style.width = `${((current + 1) / QUESTIONS.length) * 100}%`;
+
+  const isLast = current === QUESTIONS.length - 1;
+  const nextLabel = isLast ? "回答を送る" : "次へ";
+  let body = "";
+
+  if (item.type === "single" || item.type === "multi") {
+    body = `<div class="options">` +
+      item.options.map((opt, i) => `<button class="opt-btn" data-i="${i}">${opt}</button>`).join("") +
+      `</div>`;
+  } else {
+    body = `<textarea id="freeText" placeholder="${item.placeholder || ""}"></textarea>`;
+  }
+
+  // single は選んだら自動で次に進むので「次へ」ボタンは出さない
+  const showNext = item.type !== "single";
+  screen.innerHTML = `
+    <div class="card">
+      <div class="q-title">Q${current + 1}. ${item.q}</div>
+      ${item.note ? `<div class="q-note">${item.note}</div>` : ""}
+      ${body}
+      <div class="nav">
+        ${current > 0 ? `<button class="btn btn-back" id="backBtn">戻る</button>` : ""}
+        ${showNext ? `<button class="btn btn-primary" id="nextBtn" ${item.type === "multi" ? "disabled" : ""}>${nextLabel}</button>` : ""}
+      </div>
+    </div>`;
+
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.onclick = () => { current--; renderQuestion(); };
+
+  // 前に戻ってきたときは、選んでいた内容を復元する
+  const saved = answers[current];
+
+  if (item.type === "single") {
+    const btns = [...screen.querySelectorAll(".opt-btn")];
+    btns.forEach((btn) => {
+      if (saved === btn.textContent) btn.classList.add("selected");
+      btn.onclick = () => {
+        btns.forEach((b) => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        answers[current] = btn.textContent;
+        // 選んだ感を少し見せてから次へ
+        setTimeout(() => goNext(), 200);
+      };
+    });
+  } else if (item.type === "multi") {
+    const btns = [...screen.querySelectorAll(".opt-btn")];
+    const nextBtn = document.getElementById("nextBtn");
+    const selected = new Set(Array.isArray(saved) ? saved : []);
+    btns.forEach((btn) => {
+      if (selected.has(btn.dataset.i)) btn.classList.add("selected");
+      btn.onclick = () => {
+        btn.classList.toggle("selected");
+        if (btn.classList.contains("selected")) selected.add(btn.dataset.i);
+        else selected.delete(btn.dataset.i);
+        nextBtn.disabled = selected.size === 0;
+      };
+    });
+    nextBtn.disabled = selected.size === 0;
+    nextBtn.onclick = () => {
+      answers[current] = [...selected];
+      goNext();
+    };
+  } else {
+    const ta = document.getElementById("freeText");
+    if (typeof saved === "string") ta.value = saved;
+    document.getElementById("nextBtn").onclick = () => {
+      answers[current] = ta.value.trim();
+      goNext();
+    };
+  }
+}
+
+function goNext() {
+  if (current < QUESTIONS.length - 1) {
+    current++;
+    renderQuestion();
+  } else {
+    finish();
+  }
+}
+
+// ---- 回答テキストを作る ----
+function buildResultText() {
+  const lines = ["♨️ 大分たびヒアリング 回答", "――――――――――"];
+  QUESTIONS.forEach((item, i) => {
+    let ans = answers[i];
+    if (Array.isArray(ans)) {
+      ans = ans.map((idx) => item.options[idx]).join("、");
+    }
+    if (!ans) ans = "特になし";
+    lines.push(`Q${i + 1}. ${item.q}`);
+    lines.push(`A. ${ans}`);
+    lines.push("");
+  });
+  return lines.join("\n").trim();
+}
+
+// ---- コピー処理 ----
+// LINEアプリ内ブラウザなどでは clipboard API が使えないことがあるので、
+// 古い方法（execCommand）にもフォールバックする
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  return ok;
+}
+
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text).then(() => true).catch(() => fallbackCopy(text));
+  }
+  return Promise.resolve(fallbackCopy(text));
+}
+
+// ---- 結果画面 ----
+function finish() {
+  const text = buildResultText();
+  // 「回答を送る」ボタンのタップをきっかけにコピーする（タップ直後ならコピーが許可されるため）
+  copyText(text).then((ok) => renderDone(text, ok));
+}
+
+function renderDone(text, copied) {
+  progressWrap.style.display = "none";
+  screen.innerHTML = `
+    <div class="card">
+      <div class="done-hero">
+        <div class="emoji">🎉</div>
+        <h2>回答ありがとう！</h2>
+      </div>
+      <div class="copy-status ${copied ? "ok" : "ng"}" id="copyStatus">
+        ${copied
+          ? "回答をコピーしました！<br>このままLINEに貼って送ってね 📲"
+          : "下のボタンで回答をコピーして、<br>LINEに貼って送ってね 📲"}
+      </div>
+      <div class="result-text">${text.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</div>
+      <div class="nav">
+        <button class="btn btn-primary" id="copyBtn">回答をコピーする</button>
+      </div>
+      <button class="restart" id="restartBtn">最初からやり直す</button>
+    </div>`;
+
+  document.getElementById("copyBtn").onclick = () => {
+    copyText(text).then((ok) => {
+      const st = document.getElementById("copyStatus");
+      st.className = "copy-status " + (ok ? "ok" : "ng");
+      st.innerHTML = ok
+        ? "コピーしました！<br>このままLINEに貼って送ってね 📲"
+        : "コピーできなかったみたい…<br>上の回答を長押しでコピーしてね";
+    });
+  };
+  document.getElementById("restartBtn").onclick = () => {
+    if (confirm("回答を消して最初からやり直す？")) {
+      answers = [];
+      renderStart();
+    }
+  };
+}
+
+renderStart();
+</script>
+</body>
+</html>
